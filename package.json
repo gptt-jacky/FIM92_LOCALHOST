@@ -1,0 +1,16 @@
+{
+  "name": "fim92-test-server",
+  "version": "1.0.0",
+  "description": "FIM-92 測試伺服器 - 用於測試刺針本體和震動片的 WebSocket 通訊",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["fim92", "websocket", "test", "server"],
+  "author": "您的名字",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.14.0"
+    }
+  }

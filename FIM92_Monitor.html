@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIM-92 監控系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background-color: #2a3c5a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 10px;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 2px solid #cc9900;
+            background-color: #3a4d6b;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 3px;
+            color: #cc9900;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            font-size: 0.8em;
+            color: #aaa;
+        }
+
+        /* 設備連線狀態區塊 - 緊湊版 */
+        .devices-status {
+            display: grid;
+            grid-template-columns: 1fr 1fr 120px;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .device-card {
+            background-color: #3a4d6b;
+            border: 1px solid;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.8em;
+        }
+
+        .device-online {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .device-offline {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .device-title {
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+
+        .device-status {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .device-heartbeat {
+            font-size: 0.7em;
+        }
+
+        .uptime-box {
+            background-color: #3a4d6b;
+            border: 1px solid #555;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .uptime-label {
+            font-size: 0.7em;
+            color: #aaa;
+            margin-bottom: 2px;
+        }
+
+        .uptime-value {
+            font-size: 1em;
+            color: #cc9900;
+            font-weight: bold;
+        }
+
+        /* 主要狀態網格 - 所有狀態在同一行 */
+        .main-status {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .status-card {
+            background-color: #3a4d6b;
+            padding: 10px;
+            border: 2px solid #666;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .status-card.active {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .status-card.active::before {
+            content: "■";
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            font-size: 1em;
+            color: #00ff00;
+        }
+
+        .status-card.inactive {
+            border-color: #666;
+            color: #aaa;
+        }
+
+        .status-card.inactive::before {
+            content: "□";
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            font-size: 1em;
+            color: #666;
+        }
+
+        /* 震動器專用樣式 */
+        .vibrator-card {
+            background-color: #3a4d6b;
+            padding: 10px;
+            border: 2px solid #666;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .vibrator-card.active {
+            border-color: #cc9900;
+            color: #cc9900;
+        }
+
+        .vibrator-card.active::before {
+            content: "■";
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            font-size: 1em;
+            color: #cc9900;
+        }
+
+        .vibrator-card.inactive {
+            border-color: #666;
+            color: #aaa;
+        }
+
+        .vibrator-card.inactive::before {
+            content: "□";
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            font-size: 1em;
+            color: #666;
+        }
+
+        .status-label {
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            font-family: inherit;
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            background-color: #3a4d6b;
+            border: 1px solid #555;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .control-panel h3 {
+            margin-bottom: 8px;
+            color: #cc9900;
+            font-size: 1em;
+            text-transform: uppercase;
+        }
+
+        button {
+            background-color: #4a5d7b;
+            color: #cc9900;
+            border: 1px solid #cc9900;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            margin: 3px;
+        }
+
+        button:hover {
+            background-color: #cc9900;
+            color: #2a3c5a;
+        }
+
+        /* 統計資訊 - 移到下方 */
+        .stats-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background-color: #3a4d6b;
+            border: 1px solid #555;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .info-label {
+            color: #aaa;
+            font-size: 0.7em;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+
+        .info-value {
+            color: #cc9900;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        /* 記錄區域 */
+        .log-section {
+            background-color: #3a4d6b;
+            border: 1px solid #555;
+            padding: 10px;
+        }
+
+        .log-section h3 {
+            margin-bottom: 8px;
+            color: #cc9900;
+            font-size: 1em;
+            text-transform: uppercase;
+        }
+
+        .log-area {
+            background-color: #2a3c5a;
+            border: 1px solid #555;
+            padding: 8px;
+            height: 180px;
+            overflow-y: auto;
+            font-family: inherit;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+
+        .log-entry {
+            margin-bottom: 3px;
+            padding: 2px;
+            border-left: 2px solid;
+        }
+
+        .log-info {
+            color: #00ff00;
+            border-left-color: #00ff00;
+        }
+
+        .log-warning {
+            color: #cc9900;
+            border-left-color: #cc9900;
+        }
+
+        .log-error {
+            color: #ff0000;
+            border-left-color: #ff0000;
+        }
+
+        .log-data {
+            color: #4488ff;
+            border-left-color: #4488ff;
+        }
+
+        .log-heartbeat {
+            color: #888;
+            border-left-color: #888;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .devices-status {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-status {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .stats-info {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 滾動條樣式 */
+        .log-area::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .log-area::-webkit-scrollbar-track {
+            background: #4a5d7b;
+        }
+
+        .log-area::-webkit-scrollbar-thumb {
+            background: #666;
+        }
+
+        .log-area::-webkit-scrollbar-thumb:hover {
+            background: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>FIM-92 TEST MONITOR</h1>
+            <p>Real-time Device Status Monitor</p>
+        </div>
+
+        <!-- 設備連線狀態 - 緊湊版 -->
+        <div class="devices-status">
+            <div id="fim92Status" class="device-card device-offline">
+                <div class="device-title">FIM-92 BODY</div>
+                <div class="device-status">OFFLINE</div>
+                <div class="device-heartbeat">Last: --:--:--</div>
+            </div>
+            <div id="vibratorStatus" class="device-card device-offline">
+                <div class="device-title">VIBRATOR</div>
+                <div class="device-status">OFFLINE</div>
+                <div class="device-heartbeat">Last: --:--:--</div>
+            </div>
+            <div class="uptime-box">
+                <div class="uptime-label">UPTIME</div>
+                <div class="uptime-value" id="uptime">00:00:00</div>
+            </div>
+        </div>
+
+        <!-- 主要狀態 - 所有狀態同一行 -->
+        <div class="main-status">
+            <!-- FIM-92 感測器 -->
+            <div id="battery" class="status-card inactive">
+                <div class="status-label">BATTERY</div>
+                <div class="status-value">OFF</div>
+            </div>
+
+            <div id="safety" class="status-card inactive">
+                <div class="status-label">SAFETY</div>
+                <div class="status-value">OFF</div>
+            </div>
+
+            <div id="lock" class="status-card inactive">
+                <div class="status-label">LOCK</div>
+                <div class="status-value">OFF</div>
+            </div>
+
+            <div id="trigger" class="status-card inactive">
+                <div class="status-label">TRIGGER</div>
+                <div class="status-value">OFF</div>
+            </div>
+
+            <!-- 震動器輸出 -->
+            <div id="motor" class="vibrator-card inactive">
+                <div class="status-label">MOTOR</div>
+                <div class="status-value">OFF</div>
+            </div>
+
+            <div id="buzzer" class="vibrator-card inactive">
+                <div class="status-label">BUZZER</div>
+                <div class="status-value">OFF</div>
+            </div>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="control-panel">
+            <h3>MANUAL CONTROL</h3>
+            <button onclick="testVibration()">TEST MOTOR</button>
+            <button onclick="testBuzzer()">TEST BUZZER</button>
+            <button onclick="clearLog()">CLEAR LOG</button>
+        </div>
+
+        <!-- 統計資訊 - 移到下方 -->
+        <div class="stats-info">
+            <div class="info-box">
+                <div class="info-label">FIM-92 Packets</div>
+                <div class="info-value" id="fim92PacketCount">0</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Vibrator Commands</div>
+                <div class="info-value" id="vibratorCommands">0</div>
+            </div>
+        </div>
+
+        <!-- 活動記錄 -->
+        <div class="log-section">
+            <h3>ACTIVITY LOG</h3>
+            <div id="logArea" class="log-area">
+                <div class="log-entry log-info">[SYSTEM] FIM-92 test monitor initialized</div>
+                <div class="log-entry log-info">[INFO] Waiting for device connections...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let fim92PacketCount = 0;
+        let vibratorCommands = 0;
+        let startTime = Date.now();
+
+        // 設備心跳狀態
+        let deviceHeartbeats = {
+            fim92: {
+                lastSeen: null,
+                timeout: null,
+                connected: false
+            },
+            vibrator: {
+                lastSeen: null,
+                timeout: null,
+                connected: false
+            }
+        };
+
+        // 震動器輸出狀態
+        let vibratorOutputs = {
+            motor: false,
+            buzzer: false
+        };
+
+        // 心跳超時時間 (5秒)
+        const HEARTBEAT_TIMEOUT = 5000;
+
+        // 自動連接 WebSocket
+        function autoConnect() {
+            const serverUrl = 'ws://localhost:8080';
+            
+            try {
+                ws = new WebSocket(serverUrl);
+                setupWebSocketHandlers();
+            } catch (error) {
+                addLog('error', `Auto connection failed: ${error.message}`);
+                // 3秒後重試
+                setTimeout(autoConnect, 3000);
+            }
+        }
+
+        // 更新運行時間
+        function updateUptime() {
+            const now = Date.now();
+            const diff = now - startTime;
+            const hours = Math.floor(diff / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            
+            document.getElementById('uptime').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // 更新設備心跳狀態
+        function updateDeviceHeartbeat(deviceType) {
+            const now = Date.now();
+            const device = deviceHeartbeats[deviceType];
+            
+            device.lastSeen = now;
+            device.connected = true;
+            
+            // 清除舊的超時計時器
+            if (device.timeout) {
+                clearTimeout(device.timeout);
+            }
+            
+            // 設定新的超時計時器
+            device.timeout = setTimeout(() => {
+                device.connected = false;
+                updateDeviceStatus(deviceType, false);
+                addLog('warning', `${deviceType.toUpperCase()} heartbeat timeout - device offline`);
+            }, HEARTBEAT_TIMEOUT);
+            
+            updateDeviceStatus(deviceType, true);
+        }
+
+        // 更新設備狀態顯示
+        function updateDeviceStatus(deviceType, isOnline) {
+            const statusEl = document.getElementById(`${deviceType}Status`);
+            const device = deviceHeartbeats[deviceType];
+            
+            if (isOnline) {
+                statusEl.className = 'device-card device-online';
+                statusEl.querySelector('.device-status').textContent = 'ONLINE';
+                statusEl.querySelector('.device-heartbeat').textContent = 'Last: NOW';
+            } else {
+                statusEl.className = 'device-card device-offline';
+                statusEl.querySelector('.device-status').textContent = 'OFFLINE';
+                statusEl.querySelector('.device-heartbeat').textContent = 'Last: TIMEOUT';
+            }
+            
+            if (device.lastSeen) {
+                const lastSeenTime = new Date(device.lastSeen).toLocaleTimeString();
+                statusEl.querySelector('.device-heartbeat').textContent = `Last: ${lastSeenTime}`;
+            }
+        }
+
+        // 設定 WebSocket 事件處理
+        function setupWebSocketHandlers() {
+            ws.onopen = function() {
+                addLog('info', 'Connected to server');
+                
+                // 發送客戶端識別
+                ws.send('web_client');
+            };
+
+            ws.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleWebSocketMessage(data);
+                } catch (error) {
+                    // 處理原始資料
+                    handleRawMessage(event.data);
+                }
+            };
+
+            ws.onclose = function(event) {
+                addLog('warning', 'Connection lost - attempting reconnect...');
+                
+                // 3秒後自動重連
+                setTimeout(autoConnect, 3000);
+            };
+
+            ws.onerror = function(error) {
+                addLog('error', `Connection error: ${error.type}`);
+            };
+        }
+
+        // 處理 WebSocket 訊息
+        function handleWebSocketMessage(data) {
+            if (data.type === 'fim92_status' || data.type === 'fim92_heartbeat') {
+                fim92PacketCount++;
+                document.getElementById('fim92PacketCount').textContent = fim92PacketCount;
+                updateDeviceHeartbeat('fim92');
+                
+                if (data.data) {
+                    updateFIM92Status(data.data);
+                    addLog('data', `FIM-92 data: ${JSON.stringify(data.data)}`);
+                }
+            } else if (data.type === 'vibrator_connected') {
+                updateDeviceHeartbeat('vibrator');
+                addLog('info', 'Vibrator device connected');
+            } else if (data.type === 'vibrator_motor_on') {
+                updateVibratorOutput('motor', true);
+                addLog('info', 'Motor activated');
+            } else if (data.type === 'vibrator_motor_off') {
+                updateVibratorOutput('motor', false);
+                addLog('info', 'Motor deactivated');
+            } else if (data.type === 'vibrator_buzzer_on') {
+                updateVibratorOutput('buzzer', true);
+                addLog('info', 'Buzzer activated');
+            } else if (data.type === 'vibrator_buzzer_off') {
+                updateVibratorOutput('buzzer', false);
+                addLog('info', 'Buzzer deactivated');
+            }
+        }
+
+        // 處理原始資料 (如 "1,0,1,0")
+        function handleRawMessage(data) {
+            if (/^\d,\d,\d,\d$/.test(data)) {
+                fim92PacketCount++;
+                document.getElementById('fim92PacketCount').textContent = fim92PacketCount;
+                updateDeviceHeartbeat('fim92');
+                
+                const [battery, safety, lock, trigger] = data.split(',').map(Number);
+                updateFIM92Status({ battery, safety, lock, trigger });
+                addLog('data', `FIM-92 raw: ${data}`);
+            } else if (data.includes('vibrator')) {
+                updateDeviceHeartbeat('vibrator');
+                addLog('info', `Vibrator: ${data}`);
+            }
+        }
+
+        // 更新 FIM-92 狀態顯示
+        function updateFIM92Status(data) {
+            updateStatusCard('battery', data.battery);
+            updateStatusCard('safety', data.safety);
+            updateStatusCard('lock', data.lock);
+            updateStatusCard('trigger', data.trigger);
+
+            // 特殊事件檢測
+            if (data.trigger === 0) {
+                addLog('warning', 'FIRE DETECTED! Trigger activated');
+            }
+        }
+
+        // 更新狀態卡片
+        function updateStatusCard(id, value) {
+            const card = document.getElementById(id);
+            const valueEl = card.querySelector('.status-value');
+
+            if (value === 1) {
+                card.className = 'status-card active';
+                valueEl.textContent = 'ON';
+            } else {
+                card.className = 'status-card inactive';
+                valueEl.textContent = 'OFF';
+            }
+        }
+
+        // 更新震動器輸出狀態
+        function updateVibratorOutput(outputType, isActive) {
+            vibratorOutputs[outputType] = isActive;
+            
+            const card = document.getElementById(outputType);
+            const valueEl = card.querySelector('.status-value');
+            
+            if (isActive) {
+                card.className = 'vibrator-card active';
+                valueEl.textContent = 'ON';
+            } else {
+                card.className = 'vibrator-card inactive';
+                valueEl.textContent = 'OFF';
+            }
+        }
+
+        // 測試震動
+        function testVibration() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                vibratorCommands++;
+                document.getElementById('vibratorCommands').textContent = vibratorCommands;
+                
+                const vibrationCommand = JSON.stringify({
+                    type: 'vibration',
+                    intensity: 80,
+                    duration: 500
+                });
+                ws.send(vibrationCommand);
+                addLog('info', 'Motor test command sent');
+            } else {
+                addLog('error', 'Cannot send command: Server not connected');
+            }
+        }
+
+        // 測試蜂鳴器
+        function testBuzzer() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                vibratorCommands++;
+                document.getElementById('vibratorCommands').textContent = vibratorCommands;
+                
+                const buzzerCommand = JSON.stringify({
+                    type: 'buzzer',
+                    frequency: 1000,
+                    duration: 300
+                });
+                ws.send(buzzerCommand);
+                addLog('info', 'Buzzer test command sent');
+            } else {
+                addLog('error', 'Cannot send command: Server not connected');
+            }
+        }
+
+        // 新增記錄
+        function addLog(type, message) {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message.toUpperCase()}`;
+            
+            logArea.appendChild(logEntry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // 清除記錄
+        function clearLog() {
+            const logArea = document.getElementById('logArea');
+            logArea.innerHTML = '';
+            addLog('info', 'Log cleared');
+        }
+
+        // 頁面載入時初始化
+        window.onload = function() {
+            addLog('info', 'System initialized - auto connecting...');
+            setInterval(updateUptime, 1000);
+            
+            // 自動連接
+            autoConnect();
+        };
+    </script>
+</body>
+</html>
