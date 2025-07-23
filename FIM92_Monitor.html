@@ -393,8 +393,16 @@
         <!-- 批量控制 -->
         <div class="bulk-controls">
             <h3>BULK CONTROL</h3>
-            <button class="bulk-btn" onclick="setAllBits(true)">SET ALL (BIT_1048575)</button>
+            <div style="margin-bottom: 10px;">
+                <label style="color: #aaa; font-size: 11px; margin-right: 10px;">BIT Value (0-1048575):</label>
+                <input type="number" id="bitValueInput" class="frequency-input" value="0" min="0" max="1048575" style="width: 100px; margin-right: 10px;">
+                <button class="bulk-btn" onclick="sendCustomBitCommand()">SEND BIT_VALUE</button>
+                <button class="bulk-btn" onclick="loadCurrentValue()">LOAD CURRENT</button>
+            </div>
+            <button class="bulk-btn" onclick="setAllBits(true)">SET ALL (Individual SET)</button>
+            <button class="bulk-btn" onclick="sendBitCommand()">SEND CURRENT BIT</button>
             <button class="bulk-btn danger" onclick="setAllBits(false)">CLEAR ALL (CLS)</button>
+            <button class="bulk-btn danger" onclick="sendBitZero()">BIT_0 (Zero)</button>
         </div>
 
         <!-- 數據顯示 -->
@@ -427,14 +435,14 @@
         let continuousSendInterval = null;
         let isContinuousSending = false;
 
-        // 位元定義
+        // 位元定義 - 保持原始定義不變
         const bitDefinitions = {
             0: { name: "刺針本體就緒", desc: "刺針飛彈主體接收" },
             1: { name: "震動器就緒", desc: "震動器接收" },
-            2: { name: "Bit 2", desc: "未定義" },
-            3: { name: "Bit 3", desc: "未定義" },
+            2: { name: "震動器中震動", desc: "震動器接收" },
+            3: { name: "震動器強震動", desc: "震動器接收" },
             4: { name: "Bit 4", desc: "未定義" },
-            5: { name: "Bit 5", desc: "未定義" },
+            5: { name: "洛克開關狀態", desc: "ESP32發送" },
             6: { name: "Bit 6", desc: "未定義" },
             7: { name: "Bit 7", desc: "未定義" },
             8: { name: "Bit 8", desc: "未定義" },
@@ -451,7 +459,7 @@
             19: { name: "Bit 19", desc: "未定義" }
         };
 
-        // FIM-98狀態更新函數 - 綁定到bit0
+        // FIM-98狀態更新函數 - 綁定到bit0 - 保持原始邏輯
         function updateFim98Status(bit0Status) {
             const fim98Element = document.getElementById('fim98Status');
             
@@ -476,7 +484,7 @@
             }
         }
 
-        // 震動器狀態更新函數 - 綁定到bit1
+        // 震動器狀態更新函數 - 綁定到bit1 - 保持原始邏輯
         function updateVibratorStatus(bit1Status) {
             const vibratorElement = document.getElementById('vibratorStatus');
             
@@ -501,14 +509,16 @@
             }
         }
 
-        // 初始化位元控制網格
+        // 初始化位元控制網格 - 保持原始邏輯
         function initBitGrid() {
             const grid = document.getElementById('bitGrid');
             grid.innerHTML = '';
 
             for (let i = 0; i < 20; i++) {
                 const bitControl = document.createElement('div');
-                bitControl.className = `bit-control ${i < 2 ? 'defined' : ''}`;
+                // 標記已定義的位元
+                const isDefined = i <= 5; // 0-5 位元已定義
+                bitControl.className = `bit-control ${isDefined ? 'defined' : ''}`;
                 bitControl.id = `bit${i}`;
                 
                 const bitDef = bitDefinitions[i];
@@ -527,7 +537,7 @@
             }
         }
 
-        // 設定單一位元
+        // 設定單一位元 - 修改為使用 SET_X_Y 格式
         function setBit(bitIndex, value) {
             if (value) {
                 currentBitState |= (1 << bitIndex);
@@ -538,21 +548,21 @@
             updateBitDisplay(bitIndex);
             updateDataDisplay();
             
-            // 更新設備狀態顯示
+            // 更新設備狀態顯示 - 保持原始邏輯
             if (bitIndex === 0) {
                 updateFim98Status(value);  // FIM-98 綁定到 Bit0
             } else if (bitIndex === 1) {
                 updateVibratorStatus(value);  // 震動器綁定到 Bit1
             }
             
-            // 發送位元命令
-            const command = `BIT_${currentBitState}`;
+            // 發送位元命令 - 修改為 SET_X_Y 格式
+            const command = `SET_${bitIndex}_${value ? 1 : 0}`;
             sendCommand(command);
             
             addLog('info', `Bit ${bitIndex} set to ${value ? 'ON' : 'OFF'}, sent: ${command}`);
         }
 
-        // 更新位元顯示
+        // 更新位元顯示 - 保持原始邏輯
         function updateBitDisplay(bitIndex) {
             const bitControl = document.getElementById(`bit${bitIndex}`);
             const isSet = (currentBitState & (1 << bitIndex)) !== 0;
@@ -566,39 +576,100 @@
             }
         }
 
-        // 更新數據顯示
+        // 更新數據顯示，同時更新輸入框
         function updateDataDisplay() {
             document.getElementById('currentDec').textContent = currentBitState;
             document.getElementById('currentHex').textContent = `0x${currentBitState.toString(16).toUpperCase().padStart(5, '0')}`;
+            
+            // 同步更新輸入框
+            const bitInput = document.getElementById('bitValueInput');
+            if (bitInput && document.activeElement !== bitInput) {
+                bitInput.value = currentBitState;
+            }
         }
 
-        // 設定所有位元
+        // 設定所有位元 - 修改為使用個別 SET 指令或 CLS
         function setAllBits(value) {
             if (value) {
-                currentBitState = 0xFFFFF;
-                addLog('info', 'All bits set to ON');
+                // 全部設為 ON - 逐一發送 SET 指令
+                for (let i = 0; i < 20; i++) {
+                    currentBitState |= (1 << i);
+                    updateBitDisplay(i);
+                    const command = `SET_${i}_1`;
+                    sendCommand(command);
+                }
+                addLog('info', 'All bits set to ON - individual SET commands sent');
             } else {
+                // 全部清除 - 發送 CLS 指令
                 currentBitState = 0;
-                addLog('info', 'All bits cleared');
+                for (let i = 0; i < 20; i++) {
+                    updateBitDisplay(i);
+                }
+                const command = 'CLS';
+                sendCommand(command);
+                addLog('info', 'All bits cleared - CLS command sent');
             }
             
-            // 更新所有位元顯示
+            updateDataDisplay();
+
+            // 更新設備狀態 - 保持原始邏輯
+            updateFim98Status(value);     // FIM-98 根據全開/全關
+            updateVibratorStatus(value);  // 震動器根據全開/全關
+        }
+
+        // 發送 BIT_W 整體覆寫指令（當前狀態）
+        function sendBitCommand() {
+            const command = `BIT_${currentBitState}`;
+            sendCommand(command);
+            addLog('info', `BIT command sent: ${command} (decimal: ${currentBitState})`);
+        }
+
+        // 發送自訂 BIT_W 指令
+        function sendCustomBitCommand() {
+            const inputValue = parseInt(document.getElementById('bitValueInput').value);
+            if (isNaN(inputValue) || inputValue < 0 || inputValue > 1048575) {
+                addLog('error', 'Invalid value. Please enter 0-1048575');
+                return;
+            }
+            
+            // 更新本地狀態
+            currentBitState = inputValue;
+            updateAllBitDisplays();
+            
+            // 發送指令
+            const command = `BIT_${inputValue}`;
+            sendCommand(command);
+            addLog('info', `Custom BIT command sent: ${command} (decimal: ${inputValue})`);
+        }
+
+        // 載入當前數值到輸入框
+        function loadCurrentValue() {
+            document.getElementById('bitValueInput').value = currentBitState;
+            addLog('info', `Current value loaded: ${currentBitState}`);
+        }
+
+        // 發送 BIT_0 歸零指令
+        function sendBitZero() {
+            currentBitState = 0;
             for (let i = 0; i < 20; i++) {
                 updateBitDisplay(i);
             }
             updateDataDisplay();
-
-            // 更新設備狀態
-            updateFim98Status(value);     // FIM-98 根據全開/全關
-            updateVibratorStatus(value);  // 震動器根據全開/全關
-
-            // 發送命令
-            const command = value ? `BIT_${currentBitState}` : 'CLS';
+            
+            // 同步輸入框
+            document.getElementById('bitValueInput').value = 0;
+            
+            const command = 'BIT_0';
             sendCommand(command);
-            addLog('info', `Command sent: ${command}`);
+            
+            // 更新設備狀態
+            updateFim98Status(false);
+            updateVibratorStatus(false);
+            
+            addLog('info', 'BIT_0 command sent - all bits cleared');
         }
 
-        // 連續發送功能
+        // 連續發送功能 - 修改為發送當前啟用的位元
         function toggleContinuousSend() {
             if (isContinuousSending) {
                 stopContinuousSend();
@@ -622,13 +693,14 @@
             updateSendStatus();
 
             continuousSendInterval = setInterval(() => {
+                // 使用 BIT_W 格式發送當前狀態
                 if (currentBitState > 0) {
                     const command = `BIT_${currentBitState}`;
                     sendCommand(command);
                 }
             }, interval);
 
-            addLog('info', `Continuous send started (${interval}ms interval)`);
+            addLog('info', `Continuous send started (${interval}ms interval) - using BIT_W format`);
         }
 
         function stopContinuousSend() {
@@ -653,21 +725,21 @@
                 `連續發送功能：${status} | 設定間隔：${interval}ms`;
         }
 
-        // 更新所有位元顯示
+        // 更新所有位元顯示 - 保持原始邏輯
         function updateAllBitDisplays() {
             for (let i = 0; i < 20; i++) {
                 updateBitDisplay(i);
             }
             updateDataDisplay();
             
-            // 檢查各bit狀態並更新對應設備
+            // 檢查各bit狀態並更新對應設備 - 保持原始邏輯
             const bit0Status = (currentBitState & (1 << 0)) !== 0;
             const bit1Status = (currentBitState & (1 << 1)) !== 0;
             updateFim98Status(bit0Status);      // FIM-98 綁定 Bit0
             updateVibratorStatus(bit1Status);   // 震動器綁定 Bit1
         }
 
-        // WebSocket連線
+        // WebSocket連線 - 保持原始邏輯
         function connectWebSocket() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const host = 'www.faymantusystem.com.tw';
@@ -686,14 +758,14 @@
             }
         }
 
-        // 設定WebSocket處理器
+        // 設定WebSocket處理器 - 保持原始邏輯
         function setupWebSocketHandlers() {
             ws.onopen = function() {
                 retryCount = 0;
                 addLog('info', 'WebSocket connected successfully');
                 ws.send('web_monitor');
                 
-                // 根據當前bit狀態設定設備顯示
+                // 根據當前bit狀態設定設備顯示 - 保持原始邏輯
                 const bit0Status = (currentBitState & (1 << 0)) !== 0;
                 const bit1Status = (currentBitState & (1 << 1)) !== 0;
                 updateFim98Status(bit0Status);
@@ -714,26 +786,75 @@
             };
         }
 
-        // 處理收到的訊息
+        // 處理收到的訊息 - 支援三種指令格式
         function handleMessage(data) {
             addLog('data', `Received: ${data}`);
             
-            // 解析BIT_數值格式 - 這是來自其他設備的共享狀態
-            const bitMatch = data.match(/^BIT_(\d+)$/);
-            if (bitMatch) {
-                const value = parseInt(bitMatch[1]);
-                // 更新本地狀態以同步
-                currentBitState = value;
-                updateAllBitDisplays();
-                addLog('info', `Shared state updated: ${value}`);
+            // 解析 SET_X_Y 格式 - 單一位元設定
+            const setMatch = data.match(/^SET_(\d+)_([01])$/);
+            if (setMatch) {
+                const bitIndex = parseInt(setMatch[1]);
+                const value = parseInt(setMatch[2]);
+                
+                if (bitIndex >= 0 && bitIndex < 20) {
+                    if (value === 1) {
+                        currentBitState |= (1 << bitIndex);
+                    } else {
+                        currentBitState &= ~(1 << bitIndex);
+                    }
+                    
+                    updateBitDisplay(bitIndex);
+                    updateDataDisplay();
+                    
+                    // 更新設備狀態顯示
+                    if (bitIndex === 0) {
+                        updateFim98Status(value === 1);
+                    } else if (bitIndex === 1) {
+                        updateVibratorStatus(value === 1);
+                    }
+                    
+                    addLog('info', `SET command processed: Bit${bitIndex}=${value}`);
+                }
                 return;
             }
 
-            // 解析其他格式的訊息
+            // 解析 BIT_W 格式 - 整體覆寫
+            const bitMatch = data.match(/^BIT_(\d+)$/);
+            if (bitMatch) {
+                const value = parseInt(bitMatch[1]);
+                if (value >= 0 && value <= 1048575) { // 20位元最大值
+                    currentBitState = value;
+                    updateAllBitDisplays();
+                    addLog('info', `BIT command processed: ${value} (0x${value.toString(16).toUpperCase()})`);
+                }
+                return;
+            }
+
+            // 解析 CLS 指令 - 清除狀態
+            if (data === 'CLS') {
+                currentBitState = 0;
+                updateAllBitDisplays();
+                addLog('info', 'CLS command processed - all bits cleared');
+                return;
+            }
+
+            // 解析純數字格式（保持向後相容）
+            const numMatch = data.match(/^\d+$/);
+            if (numMatch) {
+                const value = parseInt(data);
+                if (value >= 0 && value <= 1048575) { // 20位元最大值
+                    currentBitState = value;
+                    updateAllBitDisplays();
+                    addLog('info', `Numeric value processed: ${value}`);
+                }
+                return;
+            }
+
+            // 其他格式的訊息
             addLog('info', `Unknown format: ${data}`);
         }
 
-        // 發送命令
+        // 發送命令 - 保持原始邏輯
         function sendCommand(command) {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(command);
@@ -744,13 +865,13 @@
             }
         }
 
-        // 排程重連
+        // 排程重連 - 保持原始邏輯
         function scheduleReconnect() {
             retryCount++;
             setTimeout(connectWebSocket, 5000);
         }
 
-        // 更新運行時間
+        // 更新運行時間 - 保持原始邏輯
         function updateUptime() {
             const now = Date.now();
             const diff = now - startTime;
@@ -762,7 +883,7 @@
                 `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        // 新增記錄
+        // 新增記錄 - 保持原始邏輯
         function addLog(type, message) {
             const logArea = document.getElementById('logArea');
             const timestamp = new Date().toLocaleTimeString();
@@ -779,7 +900,7 @@
             }
         }
 
-        // 頁面載入初始化
+        // 頁面載入初始化 - 保持原始邏輯，更新位元定義說明
         window.onload = function() {
             initBitGrid();
             updateDataDisplay();
@@ -789,8 +910,14 @@
             addLog('info', 'Supports 20-bit control (0-1048575)');
             addLog('info', 'FIM-98 status linked to Bit0');
             addLog('info', 'Vibrator status linked to Bit1');
+            addLog('info', 'Vibrator medium vibration linked to Bit2');
+            addLog('info', 'Vibrator strong vibration linked to Bit3');
+            addLog('info', 'Switch status linked to Bit5');
+            addLog('info', 'Using SET_X_Y command format');
+            addLog('info', 'Using BIT_W format for bulk operations');
+            addLog('info', 'Using CLS for clear operations');
             
-            // 監聽頻率輸入變化
+            // 監聽頻率輸入變化 - 保持原始邏輯
             document.getElementById('sendInterval').addEventListener('input', function() {
                 updateSendStatus();
                 if (isContinuousSending) {
@@ -800,14 +927,14 @@
                 }
             });
             
-            // 啟動定時器
+            // 啟動定時器 - 保持原始邏輯
             setInterval(updateUptime, 1000);
             
-            // 連接WebSocket
+            // 連接WebSocket - 保持原始邏輯
             connectWebSocket();
         };
 
-        // 頁面卸載時清理
+        // 頁面卸載時清理 - 保持原始邏輯
         window.onbeforeunload = function() {
             stopContinuousSend();
             if (ws) {
