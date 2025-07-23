@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIM-92 監控系統</title>
+    <title>FIM-92 位元控制系統</title>
     <style>
         * {
             margin: 0;
@@ -19,12 +19,10 @@
             line-height: 1.4;
         }
 
-
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
-
 
         .header {
             text-align: center;
@@ -34,7 +32,6 @@
             background-color: #3a4d6b;
         }
 
-
         .header h1 {
             font-size: 1.8em;
             margin-bottom: 3px;
@@ -42,21 +39,18 @@
             letter-spacing: 1px;
         }
 
-
         .header p {
             font-size: 0.8em;
             color: #aaa;
         }
 
-
-        /* 設備連線狀態區塊 - 緊湊版 */
-        .devices-status {
+        /* 連線狀態 */
+        .connection-status {
             display: grid;
             grid-template-columns: 1fr 1fr 120px;
             gap: 10px;
             margin-bottom: 15px;
         }
-
 
         .device-card {
             background-color: #3a4d6b;
@@ -66,38 +60,15 @@
             font-size: 0.8em;
         }
 
-
         .device-online {
             border-color: #00ff00;
             color: #00ff00;
         }
 
-
         .device-offline {
             border-color: #ff0000;
             color: #ff0000;
         }
-
-
-        .device-title {
-            font-size: 1em;
-            font-weight: bold;
-            margin-bottom: 3px;
-            text-transform: uppercase;
-        }
-
-
-        .device-status {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 2px;
-        }
-
-
-        .device-heartbeat {
-            font-size: 0.7em;
-        }
-
 
         .uptime-box {
             background-color: #3a4d6b;
@@ -106,133 +77,113 @@
             text-align: center;
         }
 
-
-        .uptime-label {
-            font-size: 0.7em;
-            color: #aaa;
-            margin-bottom: 2px;
+        /* 位元控制區域 */
+        .bit-control-section {
+            background-color: #3a4d6b;
+            border: 1px solid #cc9900;
+            padding: 15px;
+            margin-bottom: 15px;
         }
 
-
-        .uptime-value {
-            font-size: 1em;
+        .section-title {
             color: #cc9900;
-            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            text-align: center;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
         }
 
-
-        /* 主要狀態網格 - 所有狀態在同一行 */
-        .main-status {
+        .bit-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             margin-bottom: 15px;
         }
 
-
-        .status-card {
-            background-color: #3a4d6b;
+        .bit-control {
+            background-color: #4a5d7b;
+            border: 1px solid #666;
             padding: 10px;
-            border: 2px solid #666;
             text-align: center;
             transition: all 0.3s ease;
-            position: relative;
+            cursor: pointer;
+            transform: scale(1);
         }
 
-
-        .status-card.active {
-            border-color: #00ff00;
-            color: #00ff00;
-        }
-
-
-        .status-card.active::before {
-            content: "■";
-            position: absolute;
-            top: 5px;
-            right: 8px;
-            font-size: 1em;
-            color: #00ff00;
-        }
-
-
-        .status-card.inactive {
-            border-color: #666;
-            color: #aaa;
-        }
-
-
-        .status-card.inactive::before {
-            content: "□";
-            position: absolute;
-            top: 5px;
-            right: 8px;
-            font-size: 1em;
-            color: #666;
-        }
-
-
-        /* 震動器專用樣式 */
-        .vibrator-card {
-            background-color: #3a4d6b;
-            padding: 10px;
-            border: 2px solid #666;
-            text-align: center;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-
-        .vibrator-card.active {
+        .bit-control:hover {
+            transform: scale(1.05);
             border-color: #cc9900;
-            color: #cc9900;
+            box-shadow: 0 0 10px rgba(204, 153, 0, 0.3);
+            z-index: 10;
+            position: relative;
         }
 
-
-        .vibrator-card.active::before {
-            content: "■";
-            position: absolute;
-            top: 5px;
-            right: 8px;
-            font-size: 1em;
-            color: #cc9900;
+        .bit-control.active {
+            border-color: #00ff00;
+            background-color: #2d4a2d;
         }
 
+        .bit-control.active:hover {
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+        }
 
-        .vibrator-card.inactive {
-            border-color: #666;
+        .bit-control.defined {
+            border-color: #cc9900;
+        }
+
+        .bit-label {
+            font-size: 0.7em;
             color: #aaa;
+            margin-bottom: 3px;
+            text-transform: uppercase;
         }
 
-
-        .vibrator-card.inactive::before {
-            content: "□";
-            position: absolute;
-            top: 5px;
-            right: 8px;
-            font-size: 1em;
-            color: #666;
-        }
-
-
-        .status-label {
+        .bit-name {
             font-size: 0.8em;
             font-weight: bold;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+            color: #cc9900;
         }
 
+        .bit-control.active .bit-name {
+            color: #00ff00;
+        }
 
-        .status-value {
-            font-size: 1.4em;
+        .bit-status {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .bit-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .bit-btn {
+            background-color: #4a5d7b;
+            color: #cc9900;
+            border: 1px solid #cc9900;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 10px;
             font-weight: bold;
             font-family: inherit;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
         }
 
+        .bit-btn:hover {
+            background-color: #cc9900;
+            color: #2a3c5a;
+        }
 
-        /* 控制面板 */
-        .control-panel {
+        /* 頻率控制 */
+        .frequency-control {
             background-color: #3a4d6b;
             border: 1px solid #555;
             padding: 10px;
@@ -240,68 +191,111 @@
             text-align: center;
         }
 
-
-        .control-panel h3 {
-            margin-bottom: 8px;
+        .frequency-control h3 {
             color: #cc9900;
+            margin-bottom: 8px;
             font-size: 1em;
-            text-transform: uppercase;
         }
 
+        .frequency-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
 
-        button {
+        .frequency-input {
+            background-color: #2a3c5a;
+            border: 1px solid #555;
+            color: #ffffff;
+            padding: 5px 8px;
+            font-family: inherit;
+            font-size: 11px;
+            width: 80px;
+        }
+
+        .frequency-input:focus {
+            border-color: #cc9900;
+            outline: none;
+        }
+
+        .frequency-status {
+            font-size: 10px;
+            color: #aaa;
+        }
+
+        /* 批量控制 */
+        .bulk-controls {
+            background-color: #3a4d6b;
+            border: 1px solid #555;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .bulk-controls h3 {
+            color: #cc9900;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .bulk-btn {
             background-color: #4a5d7b;
             color: #cc9900;
             border: 1px solid #cc9900;
-            padding: 6px 12px;
+            padding: 8px 15px;
             cursor: pointer;
             font-size: 11px;
             font-weight: bold;
             font-family: inherit;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
             margin: 3px;
+            transition: all 0.3s ease;
         }
 
-
-        button:hover {
+        .bulk-btn:hover {
             background-color: #cc9900;
             color: #2a3c5a;
         }
 
+        .bulk-btn.danger {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
 
-        /* 統計資訊 - 移到下方 */
-        .stats-info {
+        .bulk-btn.danger:hover {
+            background-color: #ff4444;
+            color: #2a3c5a;
+        }
+
+        /* 數據顯示 */
+        .data-display {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-bottom: 15px;
         }
 
-
-        .info-box {
+        .data-box {
             background-color: #3a4d6b;
             border: 1px solid #555;
             padding: 8px;
             text-align: center;
         }
 
-
-        .info-label {
+        .data-label {
             color: #aaa;
             font-size: 0.7em;
             margin-bottom: 2px;
-            text-transform: uppercase;
         }
 
-
-        .info-value {
+        .data-value {
             color: #cc9900;
-            font-size: 1em;
+            font-size: 1.2em;
             font-weight: bold;
+            font-family: 'Courier New', monospace;
         }
-
 
         /* 記錄區域 */
         .log-section {
@@ -310,293 +304,451 @@
             padding: 10px;
         }
 
-
-        .log-section h3 {
-            margin-bottom: 8px;
-            color: #cc9900;
-            font-size: 1em;
-            text-transform: uppercase;
-        }
-
-
         .log-area {
             background-color: #2a3c5a;
             border: 1px solid #555;
             padding: 8px;
-            height: 180px;
+            height: 150px;
             overflow-y: auto;
             font-family: inherit;
-            font-size: 11px;
+            font-size: 10px;
             line-height: 1.3;
         }
 
-
         .log-entry {
-            margin-bottom: 3px;
-            padding: 2px;
+            margin-bottom: 2px;
+            padding: 1px;
             border-left: 2px solid;
         }
 
-
-        .log-info {
-            color: #00ff00;
-            border-left-color: #00ff00;
-        }
-
-
-        .log-warning {
-            color: #cc9900;
-            border-left-color: #cc9900;
-        }
-
-
-        .log-error {
-            color: #ff0000;
-            border-left-color: #ff0000;
-        }
-
-
-        .log-data {
-            color: #4488ff;
-            border-left-color: #4488ff;
-        }
-
-
-        .log-heartbeat {
-            color: #888;
-            border-left-color: #888;
-        }
-
+        .log-info { color: #00ff00; border-left-color: #00ff00; }
+        .log-warning { color: #cc9900; border-left-color: #cc9900; }
+        .log-error { color: #ff0000; border-left-color: #ff0000; }
+        .log-data { color: #4488ff; border-left-color: #4488ff; }
 
         /* 響應式設計 */
+        @media (max-width: 1024px) {
+            .bit-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
         @media (max-width: 768px) {
-            .devices-status {
-                grid-template-columns: 1fr;
-            }
-            
-            .main-status {
+            .bit-grid {
                 grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
             }
-            
-            .stats-info {
+            .connection-status {
                 grid-template-columns: 1fr;
             }
-        }
-
-
-        /* 滾動條樣式 */
-        .log-area::-webkit-scrollbar {
-            width: 4px;
-        }
-
-
-        .log-area::-webkit-scrollbar-track {
-            background: #4a5d7b;
-        }
-
-
-        .log-area::-webkit-scrollbar-thumb {
-            background: #666;
-        }
-
-
-        .log-area::-webkit-scrollbar-thumb:hover {
-            background: #888;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>FIM-92 TEST MONITOR</h1>
-            <p>Real-time Device Status Monitor</p>
+            <h1>FIM-92 BIT CONTROL SYSTEM</h1>
+            <p>20-Bit Real-time Control & Monitor</p>
         </div>
 
-
-        <!-- 設備連線狀態 - 緊湊版 -->
-        <div class="devices-status">
-            <div id="fim92Status" class="device-card device-offline">
-                <div class="device-title">FIM-92 BODY</div>
-                <div class="device-status">OFFLINE</div>
-                <div class="device-heartbeat">Last: --:--:--</div>
+        <!-- 連線狀態 -->
+        <div class="connection-status">
+            <div id="fim98Status" class="device-card device-offline">
+                <div style="font-weight: bold;">FIM-98</div>
+                <div>OFFLINE</div>
+                <div style="font-size: 0.6em;">Standby</div>
             </div>
             <div id="vibratorStatus" class="device-card device-offline">
-                <div class="device-title">VIBRATOR</div>
-                <div class="device-status">OFFLINE</div>
-                <div class="device-heartbeat">Last: --:--:--</div>
+                <div style="font-weight: bold;">震動器</div>
+                <div>DISCONNECTED</div>
+                <div style="font-size: 0.6em;">Standby</div>
             </div>
             <div class="uptime-box">
-                <div class="uptime-label">UPTIME</div>
-                <div class="uptime-value" id="uptime">00:00:00</div>
+                <div style="font-size: 0.7em; color: #aaa;">UPTIME</div>
+                <div style="color: #cc9900; font-weight: bold;" id="uptime">00:00:00</div>
             </div>
         </div>
 
-
-        <!-- 主要狀態 - 所有狀態同一行 -->
-        <div class="main-status">
-            <!-- FIM-92 感測器 -->
-            <div id="battery" class="status-card inactive">
-                <div class="status-label">BATTERY</div>
-                <div class="status-value">OFF</div>
-            </div>
-
-
-            <div id="safety" class="status-card inactive">
-                <div class="status-label">SAFETY</div>
-                <div class="status-value">OFF</div>
-            </div>
-
-
-            <div id="lock" class="status-card inactive">
-                <div class="status-label">LOCK</div>
-                <div class="status-value">OFF</div>
-            </div>
-
-
-            <div id="trigger" class="status-card inactive">
-                <div class="status-label">TRIGGER</div>
-                <div class="status-value">OFF</div>
-            </div>
-
-
-            <!-- 震動器輸出 -->
-            <div id="motor" class="vibrator-card inactive">
-                <div class="status-label">MOTOR</div>
-                <div class="status-value">OFF</div>
-            </div>
-
-
-            <div id="buzzer" class="vibrator-card inactive">
-                <div class="status-label">BUZZER</div>
-                <div class="status-value">OFF</div>
+        <!-- 位元控制區域 -->
+        <div class="bit-control-section">
+            <div class="section-title">BIT CONTROL MATRIX (0-19)</div>
+            <div class="bit-grid" id="bitGrid">
+                <!-- 位元控制將由JavaScript動態生成 -->
             </div>
         </div>
 
-
-        <!-- 控制面板 -->
-        <div class="control-panel">
-            <h3>MANUAL CONTROL</h3>
-            <button onclick="testVibration()">TEST MOTOR</button>
-            <button onclick="testBuzzer()">TEST BUZZER</button>
-            <button onclick="clearLog()">CLEAR LOG</button>
-        </div>
-
-
-        <!-- 統計資訊 - 移到下方 -->
-        <div class="stats-info">
-            <div class="info-box">
-                <div class="info-label">FIM-92 Packets</div>
-                <div class="info-value" id="fim92PacketCount">0</div>
+        <!-- 頻率控制 -->
+        <div class="frequency-control">
+            <h3>CONTINUOUS SEND FREQUENCY</h3>
+            <div class="frequency-input-group">
+                <label style="color: #aaa; font-size: 11px;">Interval (ms):</label>
+                <input type="number" id="sendInterval" class="frequency-input" value="1000" min="50" max="10000">
+                <button class="bulk-btn" id="startSendBtn" onclick="toggleContinuousSend()">START SENDING</button>
+                <button class="bulk-btn danger" onclick="stopContinuousSend()">STOP SENDING</button>
             </div>
-            <div class="info-box">
-                <div class="info-label">Vibrator Commands</div>
-                <div class="info-value" id="vibratorCommands">0</div>
+            <div class="frequency-status" id="sendStatus">
+                連續發送功能：停止中 | 設定間隔：1000ms
             </div>
         </div>
 
+        <!-- 批量控制 -->
+        <div class="bulk-controls">
+            <h3>BULK CONTROL</h3>
+            <button class="bulk-btn" onclick="setAllBits(true)">SET ALL (BIT_1048575)</button>
+            <button class="bulk-btn danger" onclick="setAllBits(false)">CLEAR ALL (CLS)</button>
+        </div>
+
+        <!-- 數據顯示 -->
+        <div class="data-display">
+            <div class="data-box">
+                <div class="data-label">CURRENT DEC VALUE</div>
+                <div class="data-value" id="currentDec">0</div>
+            </div>
+            <div class="data-box">
+                <div class="data-label">CURRENT HEX VALUE</div>
+                <div class="data-value" id="currentHex">0x00000</div>
+            </div>
+        </div>
 
         <!-- 活動記錄 -->
         <div class="log-section">
-            <h3>ACTIVITY LOG</h3>
+            <h3 style="color: #cc9900; margin-bottom: 8px;">ACTIVITY LOG</h3>
             <div id="logArea" class="log-area">
-                <div class="log-entry log-info">[SYSTEM] FIM-92 test monitor initialized</div>
-                <div class="log-entry log-info">[INFO] Waiting for device connections...</div>
+                <div class="log-entry log-info">[SYSTEM] Bit control system initialized</div>
+                <div class="log-entry log-info">[INFO] Ready for ESP32-C6 connection</div>
             </div>
         </div>
     </div>
 
-
     <script>
         let ws = null;
-        let fim92PacketCount = 0;
-        let vibratorCommands = 0;
         let startTime = Date.now();
+        let retryCount = 0;
+        let currentBitState = 0;
+        let continuousSendInterval = null;
+        let isContinuousSending = false;
 
-
-        // 設備心跳狀態
-        let deviceHeartbeats = {
-            fim92: {
-                lastSeen: null,
-                timeout: null,
-                connected: false
-            },
-            vibrator: {
-                lastSeen: null,
-                timeout: null,
-                connected: false
-            }
+        // 位元定義
+        const bitDefinitions = {
+            0: { name: "刺針本體就緒", desc: "刺針飛彈主體接收" },
+            1: { name: "震動器就緒", desc: "震動器接收" },
+            2: { name: "Bit 2", desc: "未定義" },
+            3: { name: "Bit 3", desc: "未定義" },
+            4: { name: "Bit 4", desc: "未定義" },
+            5: { name: "Bit 5", desc: "未定義" },
+            6: { name: "Bit 6", desc: "未定義" },
+            7: { name: "Bit 7", desc: "未定義" },
+            8: { name: "Bit 8", desc: "未定義" },
+            9: { name: "Bit 9", desc: "未定義" },
+            10: { name: "Bit 10", desc: "未定義" },
+            11: { name: "Bit 11", desc: "未定義" },
+            12: { name: "Bit 12", desc: "未定義" },
+            13: { name: "Bit 13", desc: "未定義" },
+            14: { name: "Bit 14", desc: "未定義" },
+            15: { name: "Bit 15", desc: "未定義" },
+            16: { name: "Bit 16", desc: "未定義" },
+            17: { name: "Bit 17", desc: "未定義" },
+            18: { name: "Bit 18", desc: "未定義" },
+            19: { name: "Bit 19", desc: "未定義" }
         };
 
-
-        // 震動器輸出狀態
-        let vibratorOutputs = {
-            motor: false,
-            buzzer: false
-        };
-
-
-        // 心跳超時時間 (5秒)
-        const HEARTBEAT_TIMEOUT = 5000;
-
-
-        // VR環境檢測
-        function detectVREnvironment() {
-            const userAgent = navigator.userAgent.toLowerCase();
-            const isVR = userAgent.includes('oculus') || 
-                         userAgent.includes('quest') || 
-                         userAgent.includes('vr') ||
-                         userAgent.includes('meta');
+        // FIM-98狀態更新函數 - 綁定到bit0
+        function updateFim98Status(bit0Status) {
+            const fim98Element = document.getElementById('fim98Status');
             
-            if (isVR) {
-                addLog('info', 'VR environment detected');
-                return true;
+            if (bit0Status) {
+                // Bit0 ON - FIM-98亮綠燈
+                fim98Element.className = 'device-card device-online';
+                fim98Element.innerHTML = `
+                    <div style="font-weight: bold;">FIM-98</div>
+                    <div>ONLINE</div>
+                    <div style="font-size: 0.6em;">Active</div>
+                `;
+                addLog('info', 'FIM-98 activated (Bit0 ON)');
+            } else {
+                // Bit0 OFF - FIM-98暗燈
+                fim98Element.className = 'device-card device-offline';
+                fim98Element.innerHTML = `
+                    <div style="font-weight: bold;">FIM-98</div>
+                    <div>OFFLINE</div>
+                    <div style="font-size: 0.6em;">Standby</div>
+                `;
+                addLog('info', 'FIM-98 deactivated (Bit0 OFF)');
             }
-            return false;
         }
 
+        // 震動器狀態更新函數 - 綁定到bit1
+        function updateVibratorStatus(bit1Status) {
+            const vibratorElement = document.getElementById('vibratorStatus');
+            
+            if (bit1Status) {
+                // Bit1 ON - 震動器亮綠燈
+                vibratorElement.className = 'device-card device-online';
+                vibratorElement.innerHTML = `
+                    <div style="font-weight: bold;">震動器</div>
+                    <div>CONNECTED</div>
+                    <div style="font-size: 0.6em;">Active</div>
+                `;
+                addLog('info', 'Vibrator activated (Bit1 ON)');
+            } else {
+                // Bit1 OFF - 震動器暗燈
+                vibratorElement.className = 'device-card device-offline';
+                vibratorElement.innerHTML = `
+                    <div style="font-weight: bold;">震動器</div>
+                    <div>DISCONNECTED</div>
+                    <div style="font-size: 0.6em;">Standby</div>
+                `;
+                addLog('info', 'Vibrator deactivated (Bit1 OFF)');
+            }
+        }
 
-        // 自動連接 WebSocket - 改進版
-        function autoConnect() {
-            // 動態獲取伺服器位址
+        // 初始化位元控制網格
+        function initBitGrid() {
+            const grid = document.getElementById('bitGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 20; i++) {
+                const bitControl = document.createElement('div');
+                bitControl.className = `bit-control ${i < 2 ? 'defined' : ''}`;
+                bitControl.id = `bit${i}`;
+                
+                const bitDef = bitDefinitions[i];
+                
+                bitControl.innerHTML = `
+                    <div class="bit-label">BIT ${i}</div>
+                    <div class="bit-name">${bitDef.name}</div>
+                    <div class="bit-status">OFF</div>
+                    <div class="bit-buttons">
+                        <button class="bit-btn" onclick="setBit(${i}, true)">ON</button>
+                        <button class="bit-btn" onclick="setBit(${i}, false)">OFF</button>
+                    </div>
+                `;
+                
+                grid.appendChild(bitControl);
+            }
+        }
+
+        // 設定單一位元
+        function setBit(bitIndex, value) {
+            if (value) {
+                currentBitState |= (1 << bitIndex);
+            } else {
+                currentBitState &= ~(1 << bitIndex);
+            }
+            
+            updateBitDisplay(bitIndex);
+            updateDataDisplay();
+            
+            // 更新設備狀態顯示
+            if (bitIndex === 0) {
+                updateFim98Status(value);  // FIM-98 綁定到 Bit0
+            } else if (bitIndex === 1) {
+                updateVibratorStatus(value);  // 震動器綁定到 Bit1
+            }
+            
+            // 發送位元命令
+            const command = `BIT_${currentBitState}`;
+            sendCommand(command);
+            
+            addLog('info', `Bit ${bitIndex} set to ${value ? 'ON' : 'OFF'}, sent: ${command}`);
+        }
+
+        // 更新位元顯示
+        function updateBitDisplay(bitIndex) {
+            const bitControl = document.getElementById(`bit${bitIndex}`);
+            const isSet = (currentBitState & (1 << bitIndex)) !== 0;
+            
+            if (isSet) {
+                bitControl.classList.add('active');
+                bitControl.querySelector('.bit-status').textContent = 'ON';
+            } else {
+                bitControl.classList.remove('active');
+                bitControl.querySelector('.bit-status').textContent = 'OFF';
+            }
+        }
+
+        // 更新數據顯示
+        function updateDataDisplay() {
+            document.getElementById('currentDec').textContent = currentBitState;
+            document.getElementById('currentHex').textContent = `0x${currentBitState.toString(16).toUpperCase().padStart(5, '0')}`;
+        }
+
+        // 設定所有位元
+        function setAllBits(value) {
+            if (value) {
+                currentBitState = 0xFFFFF;
+                addLog('info', 'All bits set to ON');
+            } else {
+                currentBitState = 0;
+                addLog('info', 'All bits cleared');
+            }
+            
+            // 更新所有位元顯示
+            for (let i = 0; i < 20; i++) {
+                updateBitDisplay(i);
+            }
+            updateDataDisplay();
+
+            // 更新設備狀態
+            updateFim98Status(value);     // FIM-98 根據全開/全關
+            updateVibratorStatus(value);  // 震動器根據全開/全關
+
+            // 發送命令
+            const command = value ? `BIT_${currentBitState}` : 'CLS';
+            sendCommand(command);
+            addLog('info', `Command sent: ${command}`);
+        }
+
+        // 連續發送功能
+        function toggleContinuousSend() {
+            if (isContinuousSending) {
+                stopContinuousSend();
+            } else {
+                startContinuousSend();
+            }
+        }
+
+        function startContinuousSend() {
+            const interval = parseInt(document.getElementById('sendInterval').value);
+            if (interval < 50) {
+                addLog('error', 'Interval too short (minimum 50ms)');
+                return;
+            }
+
+            isContinuousSending = true;
+            document.getElementById('startSendBtn').textContent = 'SENDING...';
+            document.getElementById('startSendBtn').style.backgroundColor = '#00ff00';
+            document.getElementById('startSendBtn').style.color = '#2a3c5a';
+            
+            updateSendStatus();
+
+            continuousSendInterval = setInterval(() => {
+                if (currentBitState > 0) {
+                    const command = `BIT_${currentBitState}`;
+                    sendCommand(command);
+                }
+            }, interval);
+
+            addLog('info', `Continuous send started (${interval}ms interval)`);
+        }
+
+        function stopContinuousSend() {
+            if (continuousSendInterval) {
+                clearInterval(continuousSendInterval);
+                continuousSendInterval = null;
+            }
+            
+            isContinuousSending = false;
+            document.getElementById('startSendBtn').textContent = 'START SENDING';
+            document.getElementById('startSendBtn').style.backgroundColor = '#4a5d7b';
+            document.getElementById('startSendBtn').style.color = '#cc9900';
+            
+            updateSendStatus();
+            addLog('info', 'Continuous send stopped');
+        }
+
+        function updateSendStatus() {
+            const interval = document.getElementById('sendInterval').value;
+            const status = isContinuousSending ? '運行中' : '停止中';
+            document.getElementById('sendStatus').textContent = 
+                `連續發送功能：${status} | 設定間隔：${interval}ms`;
+        }
+
+        // 更新所有位元顯示
+        function updateAllBitDisplays() {
+            for (let i = 0; i < 20; i++) {
+                updateBitDisplay(i);
+            }
+            updateDataDisplay();
+            
+            // 檢查各bit狀態並更新對應設備
+            const bit0Status = (currentBitState & (1 << 0)) !== 0;
+            const bit1Status = (currentBitState & (1 << 1)) !== 0;
+            updateFim98Status(bit0Status);      // FIM-98 綁定 Bit0
+            updateVibratorStatus(bit1Status);   // 震動器綁定 Bit1
+        }
+
+        // WebSocket連線
+        function connectWebSocket() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const host = window.location.hostname;
-            const port = '8080';
+            const host = 'www.faymantusystem.com.tw';
+            const port = '32001';
+            const path = '/v1/';
             
-            // 如果是本地開發，使用指定IP
-            const serverUrl = host === 'localhost' || host === '127.0.0.1' 
-                ? `${protocol}//10.0.0.74:${port}`
-                : `${protocol}//${host}:${port}`;
-            
-            addLog('info', `Attempting to connect to: ${serverUrl}`);
+            const serverUrl = `${protocol}//${host}:${port}${path}`;
             
             try {
                 ws = new WebSocket(serverUrl);
                 setupWebSocketHandlers();
+                addLog('info', `Connecting to: ${serverUrl}`);
             } catch (error) {
-                addLog('error', `Auto connection failed: ${error.message}`);
-                // 增加重試延遲
-                setTimeout(autoConnect, 5000);
+                addLog('error', `Connection failed: ${error.message}`);
+                scheduleReconnect();
             }
         }
 
+        // 設定WebSocket處理器
+        function setupWebSocketHandlers() {
+            ws.onopen = function() {
+                retryCount = 0;
+                addLog('info', 'WebSocket connected successfully');
+                ws.send('web_monitor');
+                
+                // 根據當前bit狀態設定設備顯示
+                const bit0Status = (currentBitState & (1 << 0)) !== 0;
+                const bit1Status = (currentBitState & (1 << 1)) !== 0;
+                updateFim98Status(bit0Status);
+                updateVibratorStatus(bit1Status);
+            };
 
-        // WebSocket狀態檢測功能
-        function checkWebSocketHealth() {
-            if (!ws || ws.readyState !== WebSocket.OPEN) {
-                addLog('warning', 'WebSocket connection lost - reconnecting...');
-                autoConnect();
+            ws.onmessage = function(event) {
+                handleMessage(event.data);
+            };
+
+            ws.onclose = function(event) {
+                addLog('warning', `WebSocket closed: ${event.code}`);
+                scheduleReconnect();
+            };
+
+            ws.onerror = function(error) {
+                addLog('error', 'WebSocket error occurred');
+            };
+        }
+
+        // 處理收到的訊息
+        function handleMessage(data) {
+            addLog('data', `Received: ${data}`);
+            
+            // 解析BIT_數值格式 - 這是來自其他設備的共享狀態
+            const bitMatch = data.match(/^BIT_(\d+)$/);
+            if (bitMatch) {
+                const value = parseInt(bitMatch[1]);
+                // 更新本地狀態以同步
+                currentBitState = value;
+                updateAllBitDisplays();
+                addLog('info', `Shared state updated: ${value}`);
+                return;
+            }
+
+            // 解析其他格式的訊息
+            addLog('info', `Unknown format: ${data}`);
+        }
+
+        // 發送命令
+        function sendCommand(command) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(command);
+                addLog('info', `Sent: ${command}`);
             } else {
-                // 發送心跳包
-                try {
-                    ws.send(JSON.stringify({type: 'ping', timestamp: Date.now()}));
-                } catch (error) {
-                    addLog('error', `Failed to send heartbeat: ${error.message}`);
-                    autoConnect();
-                }
+                addLog('error', 'WebSocket not connected');
+                connectWebSocket();
             }
         }
 
+        // 排程重連
+        function scheduleReconnect() {
+            retryCount++;
+            setTimeout(connectWebSocket, 5000);
+        }
 
         // 更新運行時間
         function updateUptime() {
@@ -610,292 +762,57 @@
                 `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
 
-
-        // 更新設備心跳狀態
-        function updateDeviceHeartbeat(deviceType) {
-            const now = Date.now();
-            const device = deviceHeartbeats[deviceType];
-            
-            device.lastSeen = now;
-            device.connected = true;
-            
-            // 清除舊的超時計時器
-            if (device.timeout) {
-                clearTimeout(device.timeout);
-            }
-            
-            // 設定新的超時計時器
-            device.timeout = setTimeout(() => {
-                device.connected = false;
-                updateDeviceStatus(deviceType, false);
-                addLog('warning', `${deviceType.toUpperCase()} heartbeat timeout - device offline`);
-            }, HEARTBEAT_TIMEOUT);
-            
-            updateDeviceStatus(deviceType, true);
-        }
-
-
-        // 更新設備狀態顯示
-        function updateDeviceStatus(deviceType, isOnline) {
-            const statusEl = document.getElementById(`${deviceType}Status`);
-            const device = deviceHeartbeats[deviceType];
-            
-            if (isOnline) {
-                statusEl.className = 'device-card device-online';
-                statusEl.querySelector('.device-status').textContent = 'ONLINE';
-                statusEl.querySelector('.device-heartbeat').textContent = 'Last: NOW';
-            } else {
-                statusEl.className = 'device-card device-offline';
-                statusEl.querySelector('.device-status').textContent = 'OFFLINE';
-                statusEl.querySelector('.device-heartbeat').textContent = 'Last: TIMEOUT';
-            }
-            
-            if (device.lastSeen) {
-                const lastSeenTime = new Date(device.lastSeen).toLocaleTimeString();
-                statusEl.querySelector('.device-heartbeat').textContent = `Last: ${lastSeenTime}`;
-            }
-        }
-
-
-        // 設定 WebSocket 事件處理 - 改進版
-        function setupWebSocketHandlers() {
-            ws.onopen = function() {
-                addLog('info', 'Connected to server successfully');
-                addLog('info', `WebSocket state: ${ws.readyState}`);
-                
-                // 發送客戶端識別
-                ws.send('web_client');
-            };
-
-
-            ws.onmessage = function(event) {
-                addLog('data', `Received message: ${event.data}`);
-                try {
-                    const data = JSON.parse(event.data);
-                    handleWebSocketMessage(data);
-                } catch (error) {
-                    // 處理原始資料
-                    handleRawMessage(event.data);
-                }
-            };
-
-
-            ws.onclose = function(event) {
-                addLog('warning', `Connection closed. Code: ${event.code}, Reason: ${event.reason}`);
-                addLog('info', 'Attempting reconnect in 5 seconds...');
-                
-                // 清理心跳
-                Object.keys(deviceHeartbeats).forEach(device => {
-                    if (deviceHeartbeats[device].timeout) {
-                        clearTimeout(deviceHeartbeats[device].timeout);
-                    }
-                    deviceHeartbeats[device].connected = false;
-                    updateDeviceStatus(device, false);
-                });
-                
-                // 增加重連延遲
-                setTimeout(autoConnect, 5000);
-            };
-
-
-            ws.onerror = function(error) {
-                addLog('error', `WebSocket error occurred`);
-                addLog('error', `Error type: ${error.type}`);
-                addLog('error', `ReadyState: ${ws ? ws.readyState : 'undefined'}`);
-            };
-        }
-
-
-        // 處理 WebSocket 訊息
-        function handleWebSocketMessage(data) {
-            if (data.type === 'fim92_status' || data.type === 'fim92_heartbeat') {
-                fim92PacketCount++;
-                document.getElementById('fim92PacketCount').textContent = fim92PacketCount;
-                updateDeviceHeartbeat('fim92');
-                
-                if (data.data) {
-                    updateFIM92Status(data.data);
-                    addLog('data', `FIM-92 data: ${JSON.stringify(data.data)}`);
-                }
-            } else if (data.type === 'vibrator_connected') {
-                updateDeviceHeartbeat('vibrator');
-                addLog('info', 'Vibrator device connected');
-            } else if (data.type === 'vibrator_motor_on') {
-                updateVibratorOutput('motor', true);
-                addLog('info', 'Motor activated');
-            } else if (data.type === 'vibrator_motor_off') {
-                updateVibratorOutput('motor', false);
-                addLog('info', 'Motor deactivated');
-            } else if (data.type === 'vibrator_buzzer_on') {
-                updateVibratorOutput('buzzer', true);
-                addLog('info', 'Buzzer activated');
-            } else if (data.type === 'vibrator_buzzer_off') {
-                updateVibratorOutput('buzzer', false);
-                addLog('info', 'Buzzer deactivated');
-            }
-        }
-
-
-        // 處理原始資料 (如 "1,0,1,0")
-        function handleRawMessage(data) {
-            if (/^\d,\d,\d,\d$/.test(data)) {
-                fim92PacketCount++;
-                document.getElementById('fim92PacketCount').textContent = fim92PacketCount;
-                updateDeviceHeartbeat('fim92');
-                
-                const [battery, safety, lock, trigger] = data.split(',').map(Number);
-                updateFIM92Status({ battery, safety, lock, trigger });
-                addLog('data', `FIM-92 raw: ${data}`);
-            } else if (data.includes('vibrator')) {
-                updateDeviceHeartbeat('vibrator');
-                addLog('info', `Vibrator: ${data}`);
-            }
-        }
-
-
-        // 更新 FIM-92 狀態顯示
-        function updateFIM92Status(data) {
-            updateStatusCard('battery', data.battery);
-            updateStatusCard('safety', data.safety);
-            updateStatusCard('lock', data.lock);
-            updateStatusCard('trigger', data.trigger);
-
-
-            // 特殊事件檢測
-            if (data.trigger === 0) {
-                addLog('warning', 'FIRE DETECTED! Trigger activated');
-            }
-        }
-
-
-        // 更新狀態卡片
-        function updateStatusCard(id, value) {
-            const card = document.getElementById(id);
-            const valueEl = card.querySelector('.status-value');
-
-
-            if (value === 1) {
-                card.className = 'status-card active';
-                valueEl.textContent = 'ON';
-            } else {
-                card.className = 'status-card inactive';
-                valueEl.textContent = 'OFF';
-            }
-        }
-
-
-        // 更新震動器輸出狀態
-        function updateVibratorOutput(outputType, isActive) {
-            vibratorOutputs[outputType] = isActive;
-            
-            const card = document.getElementById(outputType);
-            const valueEl = card.querySelector('.status-value');
-            
-            if (isActive) {
-                card.className = 'vibrator-card active';
-                valueEl.textContent = 'ON';
-            } else {
-                card.className = 'vibrator-card inactive';
-                valueEl.textContent = 'OFF';
-            }
-        }
-
-
-        // 測試震動 - 改進版
-        function testVibration() {
-            addLog('info', `WebSocket state: ${ws ? ws.readyState : 'null'}`);
-            
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                vibratorCommands++;
-                document.getElementById('vibratorCommands').textContent = vibratorCommands;
-                
-                const vibrationCommand = JSON.stringify({
-                    type: 'vibration',
-                    intensity: 80,
-                    duration: 500,
-                    timestamp: Date.now()
-                });
-                
-                try {
-                    ws.send(vibrationCommand);
-                    addLog('info', 'Motor test command sent successfully');
-                } catch (error) {
-                    addLog('error', `Failed to send motor command: ${error.message}`);
-                }
-            } else {
-                addLog('error', `Cannot send command: WebSocket state is ${ws ? ws.readyState : 'null'}`);
-                addLog('info', 'Attempting to reconnect...');
-                autoConnect();
-            }
-        }
-
-
-        // 測試蜂鳴器
-        function testBuzzer() {
-            addLog('info', `WebSocket state: ${ws ? ws.readyState : 'null'}`);
-            
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                vibratorCommands++;
-                document.getElementById('vibratorCommands').textContent = vibratorCommands;
-                
-                const buzzerCommand = JSON.stringify({
-                    type: 'buzzer',
-                    frequency: 1000,
-                    duration: 300,
-                    timestamp: Date.now()
-                });
-                
-                try {
-                    ws.send(buzzerCommand);
-                    addLog('info', 'Buzzer test command sent successfully');
-                } catch (error) {
-                    addLog('error', `Failed to send buzzer command: ${error.message}`);
-                }
-            } else {
-                addLog('error', `Cannot send command: WebSocket state is ${ws ? ws.readyState : 'null'}`);
-                addLog('info', 'Attempting to reconnect...');
-                autoConnect();
-            }
-        }
-
-
         // 新增記錄
         function addLog(type, message) {
             const logArea = document.getElementById('logArea');
             const timestamp = new Date().toLocaleTimeString();
             const logEntry = document.createElement('div');
             logEntry.className = `log-entry log-${type}`;
-            logEntry.innerHTML = `[${timestamp}] ${message.toUpperCase()}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
             
             logArea.appendChild(logEntry);
             logArea.scrollTop = logArea.scrollHeight;
+            
+            // 限制記錄數量
+            while (logArea.children.length > 50) {
+                logArea.removeChild(logArea.firstChild);
+            }
         }
 
-
-        // 清除記錄
-        function clearLog() {
-            const logArea = document.getElementById('logArea');
-            logArea.innerHTML = '';
-            addLog('info', 'Log cleared');
-        }
-
-
-        // 頁面載入時初始化
+        // 頁面載入初始化
         window.onload = function() {
-            addLog('info', 'System initialized - auto connecting...');
-            addLog('info', `User agent: ${navigator.userAgent}`);
-            addLog('info', `WebSocket support: ${window.WebSocket ? 'YES' : 'NO'}`);
+            initBitGrid();
+            updateDataDisplay();
+            updateSendStatus();
             
-            // 檢測VR環境
-            detectVREnvironment();
+            addLog('info', 'Bit control system ready');
+            addLog('info', 'Supports 20-bit control (0-1048575)');
+            addLog('info', 'FIM-98 status linked to Bit0');
+            addLog('info', 'Vibrator status linked to Bit1');
             
+            // 監聽頻率輸入變化
+            document.getElementById('sendInterval').addEventListener('input', function() {
+                updateSendStatus();
+                if (isContinuousSending) {
+                    // 如果正在發送中，重新啟動以應用新頻率
+                    stopContinuousSend();
+                    setTimeout(startContinuousSend, 100);
+                }
+            });
+            
+            // 啟動定時器
             setInterval(updateUptime, 1000);
             
-            // 自動連接
-            autoConnect();
-            
-            // 每30秒檢查一次連線狀態
-            setInterval(checkWebSocketHealth, 30000);
+            // 連接WebSocket
+            connectWebSocket();
+        };
+
+        // 頁面卸載時清理
+        window.onbeforeunload = function() {
+            stopContinuousSend();
+            if (ws) {
+                ws.close();
+            }
         };
     </script>
 </body>
