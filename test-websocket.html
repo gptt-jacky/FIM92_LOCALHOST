@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket 測試</title>
+    <style>
+        body { font-family: monospace; font-size: 20px; padding: 20px; }
+        button { font-size: 18px; padding: 10px; margin: 10px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Focus Vision WebSocket 測試</h1>
+    
+    <div class="result" id="support">檢查中...</div>
+    
+    <button onclick="testBasic()">測試基本支援</button>
+    <button onclick="testConnection()">測試連線</button>
+    
+    <div class="result" id="result">點擊按鈕開始測試</div>
+
+    <script>
+        // 基本支援檢測
+        function testBasic() {
+            const support = typeof WebSocket;
+            document.getElementById('support').innerHTML = 
+                'WebSocket 支援: ' + support + 
+                '<br>瀏覽器: ' + navigator.userAgent.substring(0, 100);
+        }
+
+        // 連線測試
+        function testConnection() {
+            const result = document.getElementById('result');
+            result.innerHTML = '測試連線中...';
+            
+            try {
+                const ws = new WebSocket('ws://10.0.0.74:8080');
+                
+                ws.onopen = function() {
+                    result.innerHTML = '✓ WebSocket 連線成功！';
+                    ws.close();
+                };
+                
+                ws.onerror = function(error) {
+                    result.innerHTML = '✗ WebSocket 連線失敗: ' + error;
+                };
+                
+                ws.onclose = function() {
+                    result.innerHTML += '<br>連線已關閉';
+                };
+                
+            } catch (error) {
+                result.innerHTML = '✗ WebSocket 建立失敗: ' + error.message;
+            }
+        }
+
+        // 自動執行基本檢測
+        window.onload = function() {
+            testBasic();
+        };
+    </script>
+</body>
+</html>

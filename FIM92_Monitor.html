@@ -19,10 +19,12 @@
             line-height: 1.4;
         }
 
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
         }
+
 
         .header {
             text-align: center;
@@ -32,6 +34,7 @@
             background-color: #3a4d6b;
         }
 
+
         .header h1 {
             font-size: 1.8em;
             margin-bottom: 3px;
@@ -39,10 +42,12 @@
             letter-spacing: 1px;
         }
 
+
         .header p {
             font-size: 0.8em;
             color: #aaa;
         }
+
 
         /* 設備連線狀態區塊 - 緊湊版 */
         .devices-status {
@@ -52,6 +57,7 @@
             margin-bottom: 15px;
         }
 
+
         .device-card {
             background-color: #3a4d6b;
             border: 1px solid;
@@ -60,15 +66,18 @@
             font-size: 0.8em;
         }
 
+
         .device-online {
             border-color: #00ff00;
             color: #00ff00;
         }
 
+
         .device-offline {
             border-color: #ff0000;
             color: #ff0000;
         }
+
 
         .device-title {
             font-size: 1em;
@@ -77,15 +86,18 @@
             text-transform: uppercase;
         }
 
+
         .device-status {
             font-size: 1.2em;
             font-weight: bold;
             margin-bottom: 2px;
         }
 
+
         .device-heartbeat {
             font-size: 0.7em;
         }
+
 
         .uptime-box {
             background-color: #3a4d6b;
@@ -94,17 +106,20 @@
             text-align: center;
         }
 
+
         .uptime-label {
             font-size: 0.7em;
             color: #aaa;
             margin-bottom: 2px;
         }
 
+
         .uptime-value {
             font-size: 1em;
             color: #cc9900;
             font-weight: bold;
         }
+
 
         /* 主要狀態網格 - 所有狀態在同一行 */
         .main-status {
@@ -113,6 +128,7 @@
             gap: 10px;
             margin-bottom: 15px;
         }
+
 
         .status-card {
             background-color: #3a4d6b;
@@ -123,10 +139,12 @@
             position: relative;
         }
 
+
         .status-card.active {
             border-color: #00ff00;
             color: #00ff00;
         }
+
 
         .status-card.active::before {
             content: "■";
@@ -137,10 +155,12 @@
             color: #00ff00;
         }
 
+
         .status-card.inactive {
             border-color: #666;
             color: #aaa;
         }
+
 
         .status-card.inactive::before {
             content: "□";
@@ -150,6 +170,7 @@
             font-size: 1em;
             color: #666;
         }
+
 
         /* 震動器專用樣式 */
         .vibrator-card {
@@ -161,10 +182,12 @@
             position: relative;
         }
 
+
         .vibrator-card.active {
             border-color: #cc9900;
             color: #cc9900;
         }
+
 
         .vibrator-card.active::before {
             content: "■";
@@ -175,10 +198,12 @@
             color: #cc9900;
         }
 
+
         .vibrator-card.inactive {
             border-color: #666;
             color: #aaa;
         }
+
 
         .vibrator-card.inactive::before {
             content: "□";
@@ -189,6 +214,7 @@
             color: #666;
         }
 
+
         .status-label {
             font-size: 0.8em;
             font-weight: bold;
@@ -197,11 +223,13 @@
             letter-spacing: 0.5px;
         }
 
+
         .status-value {
             font-size: 1.4em;
             font-weight: bold;
             font-family: inherit;
         }
+
 
         /* 控制面板 */
         .control-panel {
@@ -212,12 +240,14 @@
             text-align: center;
         }
 
+
         .control-panel h3 {
             margin-bottom: 8px;
             color: #cc9900;
             font-size: 1em;
             text-transform: uppercase;
         }
+
 
         button {
             background-color: #4a5d7b;
@@ -234,10 +264,12 @@
             margin: 3px;
         }
 
+
         button:hover {
             background-color: #cc9900;
             color: #2a3c5a;
         }
+
 
         /* 統計資訊 - 移到下方 */
         .stats-info {
@@ -247,12 +279,14 @@
             margin-bottom: 15px;
         }
 
+
         .info-box {
             background-color: #3a4d6b;
             border: 1px solid #555;
             padding: 8px;
             text-align: center;
         }
+
 
         .info-label {
             color: #aaa;
@@ -261,11 +295,13 @@
             text-transform: uppercase;
         }
 
+
         .info-value {
             color: #cc9900;
             font-size: 1em;
             font-weight: bold;
         }
+
 
         /* 記錄區域 */
         .log-section {
@@ -274,12 +310,14 @@
             padding: 10px;
         }
 
+
         .log-section h3 {
             margin-bottom: 8px;
             color: #cc9900;
             font-size: 1em;
             text-transform: uppercase;
         }
+
 
         .log-area {
             background-color: #2a3c5a;
@@ -292,36 +330,43 @@
             line-height: 1.3;
         }
 
+
         .log-entry {
             margin-bottom: 3px;
             padding: 2px;
             border-left: 2px solid;
         }
 
+
         .log-info {
             color: #00ff00;
             border-left-color: #00ff00;
         }
+
 
         .log-warning {
             color: #cc9900;
             border-left-color: #cc9900;
         }
 
+
         .log-error {
             color: #ff0000;
             border-left-color: #ff0000;
         }
+
 
         .log-data {
             color: #4488ff;
             border-left-color: #4488ff;
         }
 
+
         .log-heartbeat {
             color: #888;
             border-left-color: #888;
         }
+
 
         /* 響應式設計 */
         @media (max-width: 768px) {
@@ -339,18 +384,22 @@
             }
         }
 
+
         /* 滾動條樣式 */
         .log-area::-webkit-scrollbar {
             width: 4px;
         }
 
+
         .log-area::-webkit-scrollbar-track {
             background: #4a5d7b;
         }
 
+
         .log-area::-webkit-scrollbar-thumb {
             background: #666;
         }
+
 
         .log-area::-webkit-scrollbar-thumb:hover {
             background: #888;
@@ -363,6 +412,7 @@
             <h1>FIM-92 TEST MONITOR</h1>
             <p>Real-time Device Status Monitor</p>
         </div>
+
 
         <!-- 設備連線狀態 - 緊湊版 -->
         <div class="devices-status">
@@ -382,6 +432,7 @@
             </div>
         </div>
 
+
         <!-- 主要狀態 - 所有狀態同一行 -->
         <div class="main-status">
             <!-- FIM-92 感測器 -->
@@ -390,20 +441,24 @@
                 <div class="status-value">OFF</div>
             </div>
 
+
             <div id="safety" class="status-card inactive">
                 <div class="status-label">SAFETY</div>
                 <div class="status-value">OFF</div>
             </div>
+
 
             <div id="lock" class="status-card inactive">
                 <div class="status-label">LOCK</div>
                 <div class="status-value">OFF</div>
             </div>
 
+
             <div id="trigger" class="status-card inactive">
                 <div class="status-label">TRIGGER</div>
                 <div class="status-value">OFF</div>
             </div>
+
 
             <!-- 震動器輸出 -->
             <div id="motor" class="vibrator-card inactive">
@@ -411,11 +466,13 @@
                 <div class="status-value">OFF</div>
             </div>
 
+
             <div id="buzzer" class="vibrator-card inactive">
                 <div class="status-label">BUZZER</div>
                 <div class="status-value">OFF</div>
             </div>
         </div>
+
 
         <!-- 控制面板 -->
         <div class="control-panel">
@@ -424,6 +481,7 @@
             <button onclick="testBuzzer()">TEST BUZZER</button>
             <button onclick="clearLog()">CLEAR LOG</button>
         </div>
+
 
         <!-- 統計資訊 - 移到下方 -->
         <div class="stats-info">
@@ -437,6 +495,7 @@
             </div>
         </div>
 
+
         <!-- 活動記錄 -->
         <div class="log-section">
             <h3>ACTIVITY LOG</h3>
@@ -447,11 +506,13 @@
         </div>
     </div>
 
+
     <script>
         let ws = null;
         let fim92PacketCount = 0;
         let vibratorCommands = 0;
         let startTime = Date.now();
+
 
         // 設備心跳狀態
         let deviceHeartbeats = {
@@ -467,28 +528,75 @@
             }
         };
 
+
         // 震動器輸出狀態
         let vibratorOutputs = {
             motor: false,
             buzzer: false
         };
 
+
         // 心跳超時時間 (5秒)
         const HEARTBEAT_TIMEOUT = 5000;
 
-        // 自動連接 WebSocket
+
+        // VR環境檢測
+        function detectVREnvironment() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isVR = userAgent.includes('oculus') || 
+                         userAgent.includes('quest') || 
+                         userAgent.includes('vr') ||
+                         userAgent.includes('meta');
+            
+            if (isVR) {
+                addLog('info', 'VR environment detected');
+                return true;
+            }
+            return false;
+        }
+
+
+        // 自動連接 WebSocket - 改進版
         function autoConnect() {
-            const serverUrl = 'ws://localhost:8080';
+            // 動態獲取伺服器位址
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const host = window.location.hostname;
+            const port = '8080';
+            
+            // 如果是本地開發，使用指定IP
+            const serverUrl = host === 'localhost' || host === '127.0.0.1' 
+                ? `${protocol}//10.0.0.74:${port}`
+                : `${protocol}//${host}:${port}`;
+            
+            addLog('info', `Attempting to connect to: ${serverUrl}`);
             
             try {
                 ws = new WebSocket(serverUrl);
                 setupWebSocketHandlers();
             } catch (error) {
                 addLog('error', `Auto connection failed: ${error.message}`);
-                // 3秒後重試
-                setTimeout(autoConnect, 3000);
+                // 增加重試延遲
+                setTimeout(autoConnect, 5000);
             }
         }
+
+
+        // WebSocket狀態檢測功能
+        function checkWebSocketHealth() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                addLog('warning', 'WebSocket connection lost - reconnecting...');
+                autoConnect();
+            } else {
+                // 發送心跳包
+                try {
+                    ws.send(JSON.stringify({type: 'ping', timestamp: Date.now()}));
+                } catch (error) {
+                    addLog('error', `Failed to send heartbeat: ${error.message}`);
+                    autoConnect();
+                }
+            }
+        }
+
 
         // 更新運行時間
         function updateUptime() {
@@ -501,6 +609,7 @@
             document.getElementById('uptime').textContent = 
                 `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
+
 
         // 更新設備心跳狀態
         function updateDeviceHeartbeat(deviceType) {
@@ -525,6 +634,7 @@
             updateDeviceStatus(deviceType, true);
         }
 
+
         // 更新設備狀態顯示
         function updateDeviceStatus(deviceType, isOnline) {
             const statusEl = document.getElementById(`${deviceType}Status`);
@@ -546,16 +656,20 @@
             }
         }
 
-        // 設定 WebSocket 事件處理
+
+        // 設定 WebSocket 事件處理 - 改進版
         function setupWebSocketHandlers() {
             ws.onopen = function() {
-                addLog('info', 'Connected to server');
+                addLog('info', 'Connected to server successfully');
+                addLog('info', `WebSocket state: ${ws.readyState}`);
                 
                 // 發送客戶端識別
                 ws.send('web_client');
             };
 
+
             ws.onmessage = function(event) {
+                addLog('data', `Received message: ${event.data}`);
                 try {
                     const data = JSON.parse(event.data);
                     handleWebSocketMessage(data);
@@ -565,17 +679,32 @@
                 }
             };
 
+
             ws.onclose = function(event) {
-                addLog('warning', 'Connection lost - attempting reconnect...');
+                addLog('warning', `Connection closed. Code: ${event.code}, Reason: ${event.reason}`);
+                addLog('info', 'Attempting reconnect in 5 seconds...');
                 
-                // 3秒後自動重連
-                setTimeout(autoConnect, 3000);
+                // 清理心跳
+                Object.keys(deviceHeartbeats).forEach(device => {
+                    if (deviceHeartbeats[device].timeout) {
+                        clearTimeout(deviceHeartbeats[device].timeout);
+                    }
+                    deviceHeartbeats[device].connected = false;
+                    updateDeviceStatus(device, false);
+                });
+                
+                // 增加重連延遲
+                setTimeout(autoConnect, 5000);
             };
 
+
             ws.onerror = function(error) {
-                addLog('error', `Connection error: ${error.type}`);
+                addLog('error', `WebSocket error occurred`);
+                addLog('error', `Error type: ${error.type}`);
+                addLog('error', `ReadyState: ${ws ? ws.readyState : 'undefined'}`);
             };
         }
+
 
         // 處理 WebSocket 訊息
         function handleWebSocketMessage(data) {
@@ -606,6 +735,7 @@
             }
         }
 
+
         // 處理原始資料 (如 "1,0,1,0")
         function handleRawMessage(data) {
             if (/^\d,\d,\d,\d$/.test(data)) {
@@ -622,6 +752,7 @@
             }
         }
 
+
         // 更新 FIM-92 狀態顯示
         function updateFIM92Status(data) {
             updateStatusCard('battery', data.battery);
@@ -629,16 +760,19 @@
             updateStatusCard('lock', data.lock);
             updateStatusCard('trigger', data.trigger);
 
+
             // 特殊事件檢測
             if (data.trigger === 0) {
                 addLog('warning', 'FIRE DETECTED! Trigger activated');
             }
         }
 
+
         // 更新狀態卡片
         function updateStatusCard(id, value) {
             const card = document.getElementById(id);
             const valueEl = card.querySelector('.status-value');
+
 
             if (value === 1) {
                 card.className = 'status-card active';
@@ -648,6 +782,7 @@
                 valueEl.textContent = 'OFF';
             }
         }
+
 
         // 更新震動器輸出狀態
         function updateVibratorOutput(outputType, isActive) {
@@ -665,8 +800,11 @@
             }
         }
 
-        // 測試震動
+
+        // 測試震動 - 改進版
         function testVibration() {
+            addLog('info', `WebSocket state: ${ws ? ws.readyState : 'null'}`);
+            
             if (ws && ws.readyState === WebSocket.OPEN) {
                 vibratorCommands++;
                 document.getElementById('vibratorCommands').textContent = vibratorCommands;
@@ -674,17 +812,28 @@
                 const vibrationCommand = JSON.stringify({
                     type: 'vibration',
                     intensity: 80,
-                    duration: 500
+                    duration: 500,
+                    timestamp: Date.now()
                 });
-                ws.send(vibrationCommand);
-                addLog('info', 'Motor test command sent');
+                
+                try {
+                    ws.send(vibrationCommand);
+                    addLog('info', 'Motor test command sent successfully');
+                } catch (error) {
+                    addLog('error', `Failed to send motor command: ${error.message}`);
+                }
             } else {
-                addLog('error', 'Cannot send command: Server not connected');
+                addLog('error', `Cannot send command: WebSocket state is ${ws ? ws.readyState : 'null'}`);
+                addLog('info', 'Attempting to reconnect...');
+                autoConnect();
             }
         }
 
+
         // 測試蜂鳴器
         function testBuzzer() {
+            addLog('info', `WebSocket state: ${ws ? ws.readyState : 'null'}`);
+            
             if (ws && ws.readyState === WebSocket.OPEN) {
                 vibratorCommands++;
                 document.getElementById('vibratorCommands').textContent = vibratorCommands;
@@ -692,14 +841,23 @@
                 const buzzerCommand = JSON.stringify({
                     type: 'buzzer',
                     frequency: 1000,
-                    duration: 300
+                    duration: 300,
+                    timestamp: Date.now()
                 });
-                ws.send(buzzerCommand);
-                addLog('info', 'Buzzer test command sent');
+                
+                try {
+                    ws.send(buzzerCommand);
+                    addLog('info', 'Buzzer test command sent successfully');
+                } catch (error) {
+                    addLog('error', `Failed to send buzzer command: ${error.message}`);
+                }
             } else {
-                addLog('error', 'Cannot send command: Server not connected');
+                addLog('error', `Cannot send command: WebSocket state is ${ws ? ws.readyState : 'null'}`);
+                addLog('info', 'Attempting to reconnect...');
+                autoConnect();
             }
         }
+
 
         // 新增記錄
         function addLog(type, message) {
@@ -713,6 +871,7 @@
             logArea.scrollTop = logArea.scrollHeight;
         }
 
+
         // 清除記錄
         function clearLog() {
             const logArea = document.getElementById('logArea');
@@ -720,13 +879,23 @@
             addLog('info', 'Log cleared');
         }
 
+
         // 頁面載入時初始化
         window.onload = function() {
             addLog('info', 'System initialized - auto connecting...');
+            addLog('info', `User agent: ${navigator.userAgent}`);
+            addLog('info', `WebSocket support: ${window.WebSocket ? 'YES' : 'NO'}`);
+            
+            // 檢測VR環境
+            detectVREnvironment();
+            
             setInterval(updateUptime, 1000);
             
             // 自動連接
             autoConnect();
+            
+            // 每30秒檢查一次連線狀態
+            setInterval(checkWebSocketHealth, 30000);
         };
     </script>
 </body>

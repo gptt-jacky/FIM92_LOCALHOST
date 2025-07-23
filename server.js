@@ -177,6 +177,17 @@ server.on('request', (req, res) => {
             <p>伺服器運行中...</p>
             <p>WebSocket 端口: ${PORT}</p>
         `);
+    } else if (req.url === '/test-websocket.html') {
+        const htmlPath = path.join(__dirname, 'test-websocket.html');
+        fs.readFile(htmlPath, (err, data) => {
+            if (err) {
+                res.writeHead(404);
+                res.end('File not found');
+            } else {
+                res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+                res.end(data);
+            }
+        });
     } else {
         res.writeHead(404);
         res.end('Not Found');
