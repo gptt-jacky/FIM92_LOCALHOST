@@ -1,4 +1,4 @@
-// FIM-92 測試伺服器
+// FIM-92 位元控制伺服器 - 數字格式版本
 const WebSocket = require('ws');
 const http = require('http');
 const fs = require('fs');
@@ -12,7 +12,6 @@ const server = http.createServer();
 const wss = new WebSocket.Server({ server });
 
 // 儲存連接的設備
-let fim92Device = null;
 let vibratorDevice = null;
 let webClients = [];
 
@@ -25,34 +24,8 @@ wss.on('connection', (ws, request) => {
             const data = message.toString();
             console.log('收到資料:', data);
             
-            // 判斷是否為 FIM-92 資料格式 (例如: "1,0,1,0")
-            if (/^\d,\d,\d,\d$/.test(data)) {
-                console.log('FIM-92 資料:', data);
-                fim92Device = ws;
-                
-                // 解析資料
-                const [battery, safety, lock, trigger] = data.split(',').map(Number);
-                
-                // 廣播資料給所有網頁客戶端
-                broadcastToWebClients({
-                    type: 'fim92_status',
-                    data: { battery, safety, lock, trigger },
-                    timestamp: Date.now()
-                });
-            }
-            // 判斷是否為 FIM-92 設備識別
-            else if (data.includes('fim92_device')) {
-                console.log('FIM-92 設備連線');
-                fim92Device = ws;
-                
-                // 廣播設備上線狀態
-                broadcastToWebClients({
-                    type: 'fim92_connected',
-                    timestamp: Date.now()
-                });
-            }
             // 判斷是否為震動器設備識別
-            else if (data.includes('vibrator_device')) {
+            if (data.includes('vibrator_device')) {
                 console.log('震動器設備連線');
                 vibratorDevice = ws;
                 
@@ -62,34 +35,64 @@ wss.on('connection', (ws, request) => {
                     timestamp: Date.now()
                 });
             }
-            // 判斷是否為震動器回應
-            else if (data.includes('vibrator')) {
-                console.log('震動器回應:', data);
-                if (!vibratorDevice) vibratorDevice = ws;
-            }
             // 判斷是否為網頁客戶端
-            else if (data.includes('web_client')) {
+            else if (data.includes('web_monitor')) {
                 console.log('網頁客戶端連線');
                 webClients.push(ws);
                 
                 // 發送歡迎訊息
-                ws.send(JSON.stringify({
-                    type: 'welcome',
-                    message: 'FIM-92 測試伺服器已連線'
-                }));
+                ws.send('web_monitor');
             }
-            // 判斷是否為來自網頁的測試指令
-            else {
-                try {
-                    const command = JSON.parse(data);
-                    if (command.type === 'vibration' || command.type === 'buzzer') {
-                        console.log('收到測試指令:', data);
-                        sendCommandToVibrator(command);
+            // 判斷是否為 SET 指令 (網站發送到ESP32)
+            else if (data.startsWith('SET_')) {
+                console.log('網站發送 SET 指令:', data);
+                sendCommandToVibrator(data);
+            }
+            // 判斷是否為 BIT 指令 (網站發送到ESP32)
+            else if (data.startsWith('BIT_')) {
+                console.log('網站發送 BIT 指令:', data);
+                sendCommandToVibrator(data);
+            }
+            // 判斷是否為 CLS 指令 (網站發送到ESP32)
+            else if (data === 'CLS') {
+                console.log('網站發送 CLS 指令');
+                sendCommandToVibrator(data);
+            }
+            // 判斷是否為ESP32回傳的狀態數字
+            else if (/^\d+$/.test(data)) {
+                const value = parseInt(data);
+                if (value >= 0 && value <= 65535) {
+                    console.log('ESP32回傳狀態數字:', value);
+                    
+                    // 分析啟用的位元
+                    const activeBits = [];
+                    for (let i = 0; i < 16; i++) {
+                        if (value & (1 << i)) {
+                            activeBits.push(`BIT${i}`);
+                        }
                     }
-                } catch (parseError) {
-                    // 如果不是 JSON，就是其他類型的訊息
-                    console.log('其他訊息:', data);
+                    
+                    if (activeBits.length > 0) {
+                        console.log('啟用位元:', activeBits.join(', '));
+                    } else {
+                        console.log('所有位元都是OFF');
+                    }
+                    
+                    // 如果是來自ESP32，廣播給所有網頁客戶端
+                    if (ws === vibratorDevice) {
+                        console.log('廣播ESP32狀態給網頁客戶端');
+                        broadcastToWebClients(data);
+                    }
+                    // 如果是來自網頁，轉發給ESP32
+                    else {
+                        console.log('網頁發送數字指令給ESP32:', data);
+                        sendCommandToVibrator(data);
+                    }
                 }
+            }
+            // 其他訊息
+            else {
+                console.log('其他訊息:', data);
             }
         } catch (error) {
             console.error('處理訊息錯誤:', error);
@@ -99,19 +102,9 @@ wss.on('connection', (ws, request) => {
     // 處理連接關閉
     ws.on('close', () => {
         console.log('連接已關閉');
-        if (ws === fim92Device) {
-            fim92Device = null;
-            broadcastToWebClients({
-                type: 'fim92_disconnected',
-                timestamp: Date.now()
-            });
-        }
         if (ws === vibratorDevice) {
             vibratorDevice = null;
-            broadcastToWebClients({
-                type: 'vibrator_disconnected',
-                timestamp: Date.now()
-            });
+            console.log('震動器設備離線');
         }
         webClients = webClients.filter(client => client !== ws);
     });
@@ -122,35 +115,22 @@ wss.on('connection', (ws, request) => {
     });
 });
 
-// 發送指令到震動器 (僅在收到網頁測試指令時)
+// 發送指令到震動器 (ESP32)
 function sendCommandToVibrator(command) {
     if (vibratorDevice && vibratorDevice.readyState === WebSocket.OPEN) {
-        const commandString = JSON.stringify(command);
-        vibratorDevice.send(commandString);
-        console.log('指令已發送到震動器:', commandString);
-        
-        // 通知網頁指令已發送
-        broadcastToWebClients({
-            type: 'command_sent',
-            command: command,
-            timestamp: Date.now()
-        });
+        vibratorDevice.send(command);
+        console.log('指令已發送到ESP32:', command);
     } else {
-        console.log('震動器未連接，無法發送指令');
-        
-        // 通知網頁震動器未連接
-        broadcastToWebClients({
-            type: 'vibrator_not_connected',
-            timestamp: Date.now()
-        });
+        console.log('ESP32未連接，無法發送指令');
     }
 }
 
-// 廣播資料給所有網頁客戶端
+// 廣播給所有網頁客戶端
 function broadcastToWebClients(data) {
+    const message = typeof data === 'string' ? data : JSON.stringify(data);
     webClients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(data));
+            client.send(message);
         }
     });
 }
@@ -173,21 +153,19 @@ server.on('request', (req, res) => {
         // 測試頁面
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         res.end(`
-            <h1>FIM-92 測試頁面</h1>
+            <h1>FIM-92 位元控制測試頁面</h1>
             <p>伺服器運行中...</p>
             <p>WebSocket 端口: ${PORT}</p>
+            <p>數字範例:</p>
+            <ul>
+                <li>1 = BIT0</li>
+                <li>2 = BIT1</li>
+                <li>4 = BIT2</li>
+                <li>8 = BIT3</li>
+                <li>16 = BIT4</li>
+                <li>32 = BIT5</li>
+            </ul>
         `);
-    } else if (req.url === '/test-websocket.html') {
-        const htmlPath = path.join(__dirname, 'test-websocket.html');
-        fs.readFile(htmlPath, (err, data) => {
-            if (err) {
-                res.writeHead(404);
-                res.end('File not found');
-            } else {
-                res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-                res.end(data);
-            }
-        });
     } else {
         res.writeHead(404);
         res.end('Not Found');
@@ -197,9 +175,14 @@ server.on('request', (req, res) => {
 // 啟動伺服器
 server.listen(PORT, () => {
     console.log('=================================');
-    console.log('FIM-92 測試伺服器已啟動!');
+    console.log('FIM-92 位元控制伺服器已啟動!');
     console.log(`WebSocket 端口: ${PORT}`);
     console.log(`監控頁面: http://localhost:${PORT}`);
+    console.log('=================================');
+    console.log('數字格式說明:');
+    console.log('  1 = BIT0, 2 = BIT1, 4 = BIT2, 8 = BIT3');
+    console.log('  16 = BIT4, 32 = BIT5, 64 = BIT6, 128 = BIT7');
+    console.log('  例如: 34 = BIT1+BIT5 (2+32)');
     console.log('=================================');
     console.log('等待設備連接...');
     
@@ -207,7 +190,7 @@ server.listen(PORT, () => {
     const { networkInterfaces } = require('os');
     const nets = networkInterfaces();
     
-    console.log('\n可用的 IP 位址:');
+    console.log('可用的 IP 位址:');
     for (const name of Object.keys(nets)) {
         for (const net of nets[name]) {
             if (net.family === 'IPv4' && !net.internal) {
@@ -215,5 +198,5 @@ server.listen(PORT, () => {
             }
         }
     }
-    console.log('\n請將 FIM-92 程式的 ws_IP 改成上述 IP 位址之一');
+    console.log('請將 ESP32 程式的 ws_server 改成上述 IP 位址之一');
 });
