@@ -518,7 +518,7 @@
 
             for (let i = 0; i < 16; i++) {
                 const bitControl = document.createElement('div');
-                const isDefined = i <= 5;
+                const isDefined = true; // 所有位元都定義
                 bitControl.className = `bit-control ${isDefined ? 'defined' : ''}`;
                 bitControl.id = `bit${i}`;
                 
